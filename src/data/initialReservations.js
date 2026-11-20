@@ -1,0 +1,248 @@
+import { getFormattedDate } from '../utils/timeUtils';
+
+/**
+ * Симулирани първоначални данни за резервации за 3-те типа бизнес.
+ * Използват относителни дати (днес, утре, вчера), за да може винаги
+ * при отваряне на приложението да има актуални примерни данни за деня.
+ */
+export function getInitialReservations() {
+  const today = getFormattedDate(0);
+  const tomorrow = getFormattedDate(1);
+  const yesterday = getFormattedDate(-1);
+
+  return [
+    // --- МЕДИЦИНСКИ ЦЕНТЪР ---
+    {
+      id: 'res_med_1',
+      businessId: 'medical',
+      resourceId: 'med_1',
+      date: today,
+      startTime: '09:00',
+      endTime: '09:30',
+      clientName: 'Георги Иванов',
+      phone: '0888 123 456',
+      email: 'georgi.ivanov@mail.bg',
+      service: 'Първичен медицински преглед',
+      partySize: 1,
+      notes: 'С оплаквания за ускорен пулс и кръвно налягане.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_med_2',
+      businessId: 'medical',
+      resourceId: 'med_1',
+      date: today,
+      startTime: '10:00',
+      endTime: '10:30',
+      clientName: 'Мария Николова',
+      phone: '0899 456 789',
+      email: 'm.nikolova@example.com',
+      service: 'Ехография / диагностика',
+      partySize: 1,
+      notes: 'Носи предишни изследвания.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_med_3',
+      businessId: 'medical',
+      resourceId: 'med_2',
+      date: today,
+      startTime: '11:00',
+      endTime: '11:30',
+      clientName: 'Анелия Димитрова (за детето Никола)',
+      phone: '0877 333 444',
+      email: 'anelia.d@mail.com',
+      service: 'Профилактична консултация',
+      partySize: 1,
+      notes: 'Годишен профилактичен преглед.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_med_4',
+      businessId: 'medical',
+      resourceId: 'med_3',
+      date: today,
+      startTime: '14:30',
+      endTime: '15:00',
+      clientName: 'Петър Василев',
+      phone: '0887 555 111',
+      email: 'petar.v@company.bg',
+      service: 'Терапевтична стоматология',
+      partySize: 1,
+      notes: 'Болка в горен десен кътник.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_med_5',
+      businessId: 'medical',
+      resourceId: 'med_4',
+      date: tomorrow,
+      startTime: '10:30',
+      endTime: '11:00',
+      clientName: 'Силвия Костова',
+      phone: '0898 222 888',
+      email: 'silvia.k@gmail.com',
+      service: 'Дерматоскопия и преглед',
+      partySize: 1,
+      notes: 'Преглед на бенка.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+
+    // --- САЛОН ЗА КРАСОТА ---
+    {
+      id: 'res_sal_1',
+      businessId: 'beauty',
+      resourceId: 'sal_1',
+      date: today,
+      startTime: '10:30',
+      endTime: '11:15',
+      clientName: 'Кристина Стоева',
+      phone: '0883 456 123',
+      email: 'kris.stoeva@gmail.com',
+      service: 'Дамско подстригване и сешоар',
+      partySize: 1,
+      notes: 'Иска освежаване на краищата и прав сешоар.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_sal_2',
+      businessId: 'beauty',
+      resourceId: 'sal_2',
+      date: today,
+      startTime: '12:00',
+      endTime: '12:45',
+      clientName: 'Радостина Митева',
+      phone: '0895 789 123',
+      email: 'radostina@abv.bg',
+      service: 'Маникюр с гел лак и декорация',
+      partySize: 1,
+      notes: 'Френски маникюр с дискретен брокат.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_sal_3',
+      businessId: 'beauty',
+      resourceId: 'sal_3',
+      date: today,
+      startTime: '15:00',
+      endTime: '15:45',
+      clientName: 'Димитър Христов',
+      phone: '0885 999 888',
+      email: 'dimitar.h@gmail.com',
+      service: 'Мъжко подстригване и оформяне на брада',
+      partySize: 1,
+      notes: 'Fade подстрижка и контур на брада.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_sal_4',
+      businessId: 'beauty',
+      resourceId: 'sal_4',
+      date: tomorrow,
+      startTime: '11:15',
+      endTime: '12:00',
+      clientName: 'Елисавета Борисова',
+      phone: '0879 112 233',
+      email: 'elisa@mail.bg',
+      service: 'Хидратираща терапия за лице',
+      partySize: 1,
+      notes: 'Чувствителна кожа.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+
+    // --- СПОРТЕН КОМПЛЕКС И ЗАЛИ ---
+    {
+      id: 'res_spo_1',
+      businessId: 'sports_events',
+      resourceId: 'spo_1',
+      date: today,
+      startTime: '09:00',
+      endTime: '10:00',
+      clientName: 'Стефан Томов',
+      phone: '0884 555 444',
+      email: 'stefan.tomov@tennis.bg',
+      service: 'Свободна игра / тренировка',
+      partySize: 1,
+      notes: 'Игра на единично (2 души на корт).',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_spo_2',
+      businessId: 'sports_events',
+      resourceId: 'spo_1',
+      date: today,
+      startTime: '18:00',
+      endTime: '19:00',
+      clientName: 'Николай Русев',
+      phone: '0897 444 333',
+      email: 'n.rusev@test.bg',
+      service: 'Турнирен мач',
+      partySize: 1,
+      notes: 'Изисква се включено LED осветление.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    // ДЕМОНСТРАЦИЯ НА СПОДЕЛЕН КАПАЦИТЕТ:
+    // В Зала за Спининг (капацитет 12):
+    // Резервация 1 за 4 човека + Резервация 2 за 5 човека в 17:00 -> Общо 9/12 заети (остават 3 свободни места!)
+    {
+      id: 'res_spo_3',
+      businessId: 'sports_events',
+      resourceId: 'spo_3',
+      date: today,
+      startTime: '17:00',
+      endTime: '18:00',
+      clientName: 'Екип IT Solutions',
+      phone: '0888 909 090',
+      email: 'hr@itsolutions.bg',
+      service: 'Групово посещение с треньор',
+      partySize: 4,
+      notes: 'Корпоративна група за спининг.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'res_spo_4',
+      businessId: 'sports_events',
+      resourceId: 'spo_3',
+      date: today,
+      startTime: '17:00',
+      endTime: '18:00',
+      clientName: 'Камен и приятели',
+      phone: '0878 777 666',
+      email: 'kamen@yahoo.com',
+      service: 'Свободна игра / тренировка',
+      partySize: 5,
+      notes: '5 отделни колела.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    },
+    // Конферентна зала
+    {
+      id: 'res_spo_5',
+      businessId: 'sports_events',
+      resourceId: 'spo_4',
+      date: today,
+      startTime: '10:00',
+      endTime: '12:00',
+      clientName: 'Асоциация Млади Предприемачи',
+      phone: '0882 121 343',
+      email: 'contact@entrepreneurs.bg',
+      service: 'Обучение / конференция',
+      partySize: 20,
+      notes: 'Необходим мултимедиен проектор и климатизация.',
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    }
+  ];
+}
