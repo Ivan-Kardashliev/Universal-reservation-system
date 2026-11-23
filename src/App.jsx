@@ -8,7 +8,7 @@ import { ResourceCard } from './components/ResourceCard';
 import { ReservationList } from './components/ReservationList';
 import { BookingModal } from './components/BookingModal';
 import { Toast } from './components/Toast';
-import { Calendar, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 export function App() {
   const {
@@ -33,23 +33,19 @@ export function App() {
     resetDemoData
   } = useBookingSystem();
 
-  // Състояние за изгледа: 'slots' (график със слотове) или 'list' (списък с резервации)
   const [activeTab, setActiveTab] = useState('slots');
 
-  // Модал за резервация (създаване / редакция)
   const [modalState, setModalState] = useState({
     isOpen: false,
     initialData: null
   });
 
-  // Изскачащи съобщения (Toast)
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
   };
 
-  // Отваряне на модал за нов час от свободен слот
   const handleSelectSlot = ({ resource, startTime, endTime }) => {
     setModalState({
       isOpen: true,
@@ -63,7 +59,6 @@ export function App() {
     });
   };
 
-  // Отваряне на съществуваща резервация за преглед/редакция
   const handleViewBooking = (reservation) => {
     const resource = currentBusiness.resources.find((r) => r.id === reservation.resourceId);
     if (!resource) return;
@@ -87,7 +82,6 @@ export function App() {
     });
   };
 
-  // Подаване на формата за резервация
   const handleModalSubmit = (formData) => {
     if (formData.isEdit) {
       const res = editReservation(formData.reservationId, formData);
@@ -108,13 +102,11 @@ export function App() {
     }
   };
 
-  // Отмяна на резервация
   const handleCancelReservation = (id) => {
     cancelReservation(id);
     showToast('Резервацията беше отменена.', 'info');
   };
 
-  // Рестарт на демо данните
   const handleResetData = () => {
     if (window.confirm('Сигурни ли сте, че искате да върнете фабричните демо данни?')) {
       resetDemoData();
@@ -125,23 +117,18 @@ export function App() {
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
       
-      {/* 1. НАВИГАЦИЯ И ПРЕВКЛЮЧВАТЕЛ НА БИЗНЕС */}
       <Navbar
         businessId={businessId}
         onSwitchBusiness={switchBusiness}
         onResetData={handleResetData}
       />
 
-      {/* 2. БАНЕР С КОНФИГУРАЦИЯ НА БИЗНЕСА */}
       <BusinessBanner business={currentBusiness} />
 
-      {/* 3. ОСНОВНО СЪДЪРЖАНИЕ */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
-        {/* СТАТИСТИКА ЗА ДЕНЯ */}
         <StatsBar stats={dayStats} />
 
-        {/* ФИЛТРИ И ДАТА */}
         <FiltersBar
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
@@ -157,7 +144,6 @@ export function App() {
           reservationsCount={activeDayReservations.length}
         />
 
-        {/* ТАБ 1: ГРАФИК СЪС СЛОТОВЕ */}
         {activeTab === 'slots' && (
           <div className="space-y-4">
             {filteredResources.length === 0 ? (
@@ -190,6 +176,7 @@ export function App() {
                     <ResourceCard
                       key={resource.id}
                       resourceData={data}
+                      selectedDate={selectedDate}
                       onSelectSlot={handleSelectSlot}
                       onViewBooking={handleViewBooking}
                     />
@@ -200,13 +187,12 @@ export function App() {
           </div>
         )}
 
-        {/* ТАБ 2: СПИСЪК С ВСИЧКИ РЕЗЕРВАЦИИ ЗА ДЕНЯ */}
         {activeTab === 'list' && (
           <ReservationList
             reservations={activeDayReservations}
             resources={currentBusiness.resources}
             business={currentBusiness}
-            onEdit={(res, resObj) => {
+            onEdit={(res) => {
               handleViewBooking(res);
             }}
             onCancel={handleCancelReservation}
@@ -215,7 +201,6 @@ export function App() {
 
       </main>
 
-      {/* 4. МОДАЛИ И НОТИФИКАЦИИ */}
       {modalState.isOpen && (
         <BookingModal
           isOpen={modalState.isOpen}
@@ -233,7 +218,6 @@ export function App() {
 
       <Toast toast={toast} onClose={() => setToast(null)} />
 
-      {/* 5. ЧИСТ ПРОФЕСИОНАЛЕН ФУТЪР */}
       <footer className="border-t border-slate-200 bg-white py-6 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>

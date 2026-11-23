@@ -2,13 +2,23 @@ import React from 'react';
 import { CalendarCheck, Percent, Layers, Clock } from 'lucide-react';
 
 export function StatsBar({ stats }) {
-  const { totalReservationsCount, totalSlots, totalBookedSlots, occupancyRate, activeResourcesCount } = stats;
-  const availableSlots = Math.max(0, totalSlots - totalBookedSlots);
+  const {
+    totalReservationsCount,
+    totalSlots,
+    totalBookedSlots,
+    availableSlotsCount,
+    occupancyRate,
+    activeResourcesCount
+  } = stats;
+
+  const availableSlots =
+    typeof availableSlotsCount === 'number'
+      ? availableSlotsCount
+      : Math.max(0, totalSlots - totalBookedSlots);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
       
-      {/* КАРТА 1: ОБЩО РЕЗЕРВАЦИИ */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
         <div className="flex items-center justify-between text-slate-500 mb-2">
           <span className="text-xs font-medium">Резервации днес</span>
@@ -20,7 +30,6 @@ export function StatsBar({ stats }) {
         <div className="text-xs text-slate-500 mt-1">активни за избраната дата</div>
       </div>
 
-      {/* КАРТА 2: ПРОЦЕНТ ЗАЕТОСТ */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
         <div className="flex items-center justify-between text-slate-500 mb-2">
           <span className="text-xs font-medium">Заетост на графика</span>
@@ -42,7 +51,6 @@ export function StatsBar({ stats }) {
         </div>
       </div>
 
-      {/* КАРТА 3: СВОБОДНИ СЛОТОВЕ */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
         <div className="flex items-center justify-between text-slate-500 mb-2">
           <span className="text-xs font-medium">Свободни часове</span>
@@ -54,7 +62,6 @@ export function StatsBar({ stats }) {
         <div className="text-xs text-slate-500 mt-1">слота готови за запис</div>
       </div>
 
-      {/* КАРТА 4: АКТИВНИ РЕСУРСИ */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
         <div className="flex items-center justify-between text-slate-500 mb-2">
           <span className="text-xs font-medium">Налични ресурси</span>

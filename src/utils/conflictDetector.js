@@ -1,4 +1,4 @@
-import { doIntervalsOverlap, timeToMinutes } from './timeUtils';
+import { doIntervalsOverlap, isSlotInPast, timeToMinutes } from './timeUtils';
 
 /**
  * ОПТИМИЗАЦИЯ С ХЕШ ТАБЛИЦА (Map Index):
@@ -102,11 +102,19 @@ export function evaluateSlotStatus(slot, resource, dayReservations = []) {
  * @returns {{ isValid: boolean, error?: string, overlapping?: Array }}
  */
 export function validateReservationCollision({
+  date,
   startTime,
   endTime,
   partySize = 1,
   ignoreId = null
 }, resource, dayReservations = [], businessConfig) {
+  if (isSlotInPast(date, startTime)) {
+    return {
+      isValid: false,
+      error: 'Не може да се прави или запазва резервация за вече изминал час или дата.'
+    };
+  }
+
   const reqStart = timeToMinutes(startTime);
   const reqEnd = timeToMinutes(endTime);
 

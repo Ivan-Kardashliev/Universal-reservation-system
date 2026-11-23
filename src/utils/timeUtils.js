@@ -129,3 +129,19 @@ export function generateDaySlots(config) {
 
   return slots;
 }
+
+export function getCurrentMinutesOfDay() {
+  const now = new Date();
+  return now.getHours() * 60 + now.getMinutes();
+}
+
+export function isSlotInPast(dateStr, startTime) {
+  if (!dateStr) return false;
+
+  const todayStr = getFormattedDate(0);
+  if (dateStr < todayStr) return true;
+  if (dateStr > todayStr) return false;
+
+  const startMin = typeof startTime === 'number' ? startTime : timeToMinutes(startTime);
+  return startMin < getCurrentMinutesOfDay();
+}

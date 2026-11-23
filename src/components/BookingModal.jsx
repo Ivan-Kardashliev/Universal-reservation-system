@@ -35,6 +35,7 @@ export function BookingModal({
   // Валидация в реално време срещу конфликти и припокривания
   const validation = validateReservationCollision(
     {
+      date,
       startTime,
       endTime,
       partySize: Number(partySize) || 1,

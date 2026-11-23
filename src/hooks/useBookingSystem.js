@@ -1,30 +1,25 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { BUSINESS_PRESETS } from '../data/businessPresets';
 import { getInitialReservations } from '../data/initialReservations';
-import { getFormattedDate, generateDaySlots } from '../utils/timeUtils';
+import { getFormattedDate, generateDaySlots, isSlotInPast } from '../utils/timeUtils';
 import { buildReservationIndex, evaluateSlotStatus, validateReservationCollision } from '../utils/conflictDetector';
 
 const STORAGE_KEY = 'universal_booking_reservations_v1';
 const PRESET_KEY = 'universal_booking_preset_v1';
 
 export function useBookingSystem() {
-  // 1. Избран тип бизнес (по подразбиране 'medical')
   const [businessId, setBusinessId] = useState(() => {
     return localStorage.getItem(PRESET_KEY) || 'medical';
   });
 
-  // 2. Избрана дата за преглед на графика (по подразбиране: днешна дата)
   const [selectedDate, setSelectedDate] = useState(() => getFormattedDate(0));
 
-  // 3. Филтри
   const [selectedCategory, setSelectedCategory] = useState('Всички');
   const [searchQuery, setSearchQuery] = useState('');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
 
-  // 4. Избран ресурс за детайлен преглед (null = преглед на всички)
   const [selectedResourceId, setSelectedResourceId] = useState(null);
 
-  // 5. Всички резервации в системата (съхранявани в LocalStorage за персистентност)
   const [reservations, setReservations] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -37,7 +32,6 @@ export function useBookingSystem() {
     return getInitialReservations();
   });
 
-  // Запазване в LocalStorage при промяна на резервациите
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
@@ -46,17 +40,14 @@ export function useBookingSystem() {
     }
   }, [reservations]);
 
-  // Запазване на избрания бизнес
   useEffect(() => {
     localStorage.setItem(PRESET_KEY, businessId);
   }, [businessId]);
 
-  // Текуща конфигурация на активния бизнес
   const currentBusiness = useMemo(() => {
     return BUSINESS_PRESETS[businessId] || BUSINESS_PRESETS.medical;
   }, [businessId]);
 
-  // При смяна на бизнеса нулираме категорията и филтъра за избран ресурс
   const switchBusiness = useCallback((newId) => {
     if (BUSINESS_PRESETS[newId]) {
       setBusinessId(newId);
@@ -66,29 +57,14 @@ export function useBookingSystem() {
     }
   }, []);
 
-  /**
-   * ОПТИМИЗАЦИЯ 1 (ХЕШ ИНДЕКС):
-   * buildReservationIndex създава Map<"resourceId_date", Reservation[]>
-   * Преизчислява се САМО когато масивът `reservations` се промени, а НЕ при всеки рендер!
-   */
   const reservationIndex = useMemo(() => {
     return buildReservationIndex(reservations);
   }, [reservations]);
 
-  /**
-   * ОПТИМИЗАЦИЯ 2 (МЕМОИЗАЦИЯ НА СЛОТОВЕТЕ ЗА ДЕНЯ):
-   * generateDaySlots генерира времевите интервали спрямо работното време и продължителността.
-   * Преизчислява се само ако се смени работното време на бизнеса.
-   */
   const daySlots = useMemo(() => {
     return generateDaySlots(currentBusiness.workingHours);
   }, [currentBusiness.workingHours]);
 
-  /**
-   * ОПТИМИЗАЦИЯ 3 (ОЦЕНКА НА СЛОТОВЕТЕ ЗА ВСЕКИ РЕСУРС):
-   * За всеки ресурс пресмятаме статуса на всеки слот за избраната дата.
-   * Търсенето в reservationIndex е O(1) за всеки ресурс!
-   */
   const resourceSlotMatrix = useMemo(() => {
     const matrix = {};
 
@@ -101,11 +77,14 @@ export function useBookingSystem() {
 
       const slots = daySlots.map((slot) => {
         const evaluation = evaluateSlotStatus(slot, resource, dayReservations);
-        if (evaluation.status === 'full') {
+        const past = isSlotInPast(selectedDate, slot.startTime);
+
+        if (!past && evaluation.status === 'full') {
           bookedSlotsCount++;
-        } else if (evaluation.status === 'available' || evaluation.status === 'partially_booked') {
+        } else if (!past && (evaluation.status === 'available' || evaluation.status === 'partially_booked')) {
           availableSlotsCount++;
         }
+
         return {
           ...slot,
           ...evaluation
@@ -124,21 +103,12 @@ export function useBookingSystem() {
     return matrix;
   }, [currentBusiness.resources, selectedDate, reservationIndex, daySlots]);
 
-  /**
-   * ОПТИМИЗАЦИЯ 4: Филтриране на ресурсите с useMemo
-   * Филтрира по:
-   * 1. Категория
-   * 2. Търсачка (име, кабинет, длъжност)
-   * 3. Наличност (само със свободни часове)
-   */
   const filteredResources = useMemo(() => {
     return currentBusiness.resources.filter((res) => {
-      // Филтър по категория
       if (selectedCategory !== 'Всички' && res.category !== selectedCategory) {
         return false;
       }
 
-      // Търсене по текст
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = res.name.toLowerCase().includes(q);
@@ -150,7 +120,6 @@ export function useBookingSystem() {
         }
       }
 
-      // Само свободни
       if (onlyAvailable) {
         const resData = resourceSlotMatrix[res.id];
         if (!resData || resData.availableSlotsCount === 0) {
@@ -162,19 +131,17 @@ export function useBookingSystem() {
     });
   }, [currentBusiness.resources, selectedCategory, searchQuery, onlyAvailable, resourceSlotMatrix]);
 
-  /**
-   * СТАТИСТИКА ЗА ДЕНЯ (Мемоизирана):
-   * Пресмята обобщени показатели за избрания ден
-   */
   const dayStats = useMemo(() => {
     let totalReservationsCount = 0;
     let totalSlots = 0;
     let totalBookedSlots = 0;
+    let availableSlotsCount = 0;
 
     currentBusiness.resources.forEach((res) => {
       const data = resourceSlotMatrix[res.id];
       if (data) {
         totalReservationsCount += data.dayReservations.length;
+        availableSlotsCount += data.availableSlotsCount;
         data.slots.forEach((s) => {
           if (!s.isBreak) {
             totalSlots++;
@@ -192,23 +159,18 @@ export function useBookingSystem() {
       totalReservationsCount,
       totalSlots,
       totalBookedSlots,
+      availableSlotsCount,
       occupancyRate,
       activeResourcesCount: currentBusiness.resources.length
     };
   }, [currentBusiness.resources, resourceSlotMatrix]);
 
-  // Списък само с резервациите за текущия бизнес и избраната дата
   const activeDayReservations = useMemo(() => {
     return reservations.filter(
       (r) => r.businessId === businessId && r.date === selectedDate && r.status !== 'cancelled'
     ).sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [reservations, businessId, selectedDate]);
 
-  // --- ДЕЙСТВИЯ (ACTIONS) С useCallback ---
-
-  /**
-   * Създаване на нова резервация с предварителна валидация за конфликти
-   */
   const addReservation = useCallback((reservationData) => {
     const resource = currentBusiness.resources.find((r) => r.id === reservationData.resourceId);
     if (!resource) {
@@ -218,9 +180,9 @@ export function useBookingSystem() {
     const key = `${reservationData.resourceId}_${reservationData.date}`;
     const dayReservations = reservationIndex.get(key) || [];
 
-    // Извикване на алгоритъма за засичане на конфликти
     const validation = validateReservationCollision(
       {
+        date: reservationData.date,
         startTime: reservationData.startTime,
         endTime: reservationData.endTime,
         partySize: Number(reservationData.partySize) || 1
@@ -247,9 +209,6 @@ export function useBookingSystem() {
     return { success: true, reservation: newReservation };
   }, [currentBusiness, businessId, reservationIndex]);
 
-  /**
-   * Редакция на съществуваща резервация с валидация за конфликти
-   */
   const editReservation = useCallback((id, updatedData) => {
     const existing = reservations.find((r) => r.id === id);
     if (!existing) {
@@ -263,6 +222,7 @@ export function useBookingSystem() {
 
     const validation = validateReservationCollision(
       {
+        date: targetDate,
         startTime: updatedData.startTime || existing.startTime,
         endTime: updatedData.endTime || existing.endTime,
         partySize: Number(updatedData.partySize) || existing.partySize || 1,
@@ -284,9 +244,6 @@ export function useBookingSystem() {
     return { success: true };
   }, [reservations, currentBusiness, reservationIndex]);
 
-  /**
-   * Отказ / изтриване на резервация
-   */
   const cancelReservation = useCallback((id) => {
     setReservations((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: 'cancelled' } : r))
@@ -294,9 +251,6 @@ export function useBookingSystem() {
     return { success: true };
   }, []);
 
-  /**
-   * Възстановяване на първоначалните демо данни
-   */
   const resetDemoData = useCallback(() => {
     const initial = getInitialReservations();
     setReservations(initial);

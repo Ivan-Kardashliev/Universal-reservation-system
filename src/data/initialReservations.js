@@ -1,10 +1,5 @@
 import { getFormattedDate } from '../utils/timeUtils';
 
-/**
- * Симулирани първоначални данни за резервации за 3-те типа бизнес.
- * Използват относителни дати (днес, утре, вчера), за да може винаги
- * при отваряне на приложението да има актуални примерни данни за деня.
- */
 export function getInitialReservations() {
   const today = getFormattedDate(0);
   const tomorrow = getFormattedDate(1);
@@ -49,8 +44,8 @@ export function getInitialReservations() {
       businessId: 'medical',
       resourceId: 'med_2',
       date: today,
-      startTime: '11:00',
-      endTime: '11:30',
+      startTime: '13:30',
+      endTime: '14:00',
       clientName: 'Анелия Димитрова (за детето Никола)',
       phone: '0877 333 444',
       email: 'anelia.d@mail.com',
@@ -65,8 +60,8 @@ export function getInitialReservations() {
       businessId: 'medical',
       resourceId: 'med_3',
       date: today,
-      startTime: '14:30',
-      endTime: '15:00',
+      startTime: '15:00',
+      endTime: '15:30',
       clientName: 'Петър Василев',
       phone: '0887 555 111',
       email: 'petar.v@company.bg',
@@ -131,8 +126,8 @@ export function getInitialReservations() {
       businessId: 'beauty',
       resourceId: 'sal_3',
       date: today,
-      startTime: '15:00',
-      endTime: '15:45',
+      startTime: '14:15',
+      endTime: '15:00',
       clientName: 'Димитър Христов',
       phone: '0885 999 888',
       email: 'dimitar.h@gmail.com',
@@ -165,8 +160,8 @@ export function getInitialReservations() {
       businessId: 'sports_events',
       resourceId: 'spo_1',
       date: today,
-      startTime: '09:00',
-      endTime: '10:00',
+      startTime: '15:00',
+      endTime: '16:00',
       clientName: 'Стефан Томов',
       phone: '0884 555 444',
       email: 'stefan.tomov@tennis.bg',
@@ -181,8 +176,8 @@ export function getInitialReservations() {
       businessId: 'sports_events',
       resourceId: 'spo_1',
       date: today,
-      startTime: '18:00',
-      endTime: '19:00',
+      startTime: '14:00',
+      endTime: '15:00',
       clientName: 'Николай Русев',
       phone: '0897 444 333',
       email: 'n.rusev@test.bg',
@@ -192,16 +187,13 @@ export function getInitialReservations() {
       status: 'confirmed',
       createdAt: new Date().toISOString()
     },
-    // ДЕМОНСТРАЦИЯ НА СПОДЕЛЕН КАПАЦИТЕТ:
-    // В Зала за Спининг (капацитет 12):
-    // Резервация 1 за 4 човека + Резервация 2 за 5 човека в 17:00 -> Общо 9/12 заети (остават 3 свободни места!)
     {
       id: 'res_spo_3',
       businessId: 'sports_events',
       resourceId: 'spo_3',
       date: today,
-      startTime: '17:00',
-      endTime: '18:00',
+      startTime: '13:30',
+      endTime: '14:30',
       clientName: 'Екип IT Solutions',
       phone: '0888 909 090',
       email: 'hr@itsolutions.bg',
@@ -216,8 +208,8 @@ export function getInitialReservations() {
       businessId: 'sports_events',
       resourceId: 'spo_3',
       date: today,
-      startTime: '17:00',
-      endTime: '18:00',
+      startTime: '13:30',
+      endTime: '14:30',
       clientName: 'Камен и приятели',
       phone: '0878 777 666',
       email: 'kamen@yahoo.com',
@@ -227,7 +219,6 @@ export function getInitialReservations() {
       status: 'confirmed',
       createdAt: new Date().toISOString()
     },
-    // Конферентна зала
     {
       id: 'res_spo_5',
       businessId: 'sports_events',

@@ -1,9 +1,10 @@
 import React from 'react';
-import { User, MapPin, Award, Users, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MapPin, Award, Users, CheckCircle2, AlertCircle } from 'lucide-react';
 import { SlotGrid } from './SlotGrid';
 
 export function ResourceCard({
   resourceData,
+  selectedDate,
   onSelectSlot,
   onViewBooking
 }) {
@@ -15,12 +16,10 @@ export function ResourceCard({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow duration-200 overflow-hidden">
       
-      {/* КАРТА ЗАГЛАВИЕ (ИНФОРМАЦИЯ ЗА СПЕЦИАЛИСТА / РЕСУРСА) */}
       <div className="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/40">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           
           <div className="flex items-start gap-3">
-            {/* Аватар */}
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shrink-0 shadow-2xs ${resource.avatarBg || 'bg-slate-100 text-slate-700'}`}>
               {resource.name.charAt(0)}
             </div>
@@ -60,7 +59,6 @@ export function ResourceCard({
             </div>
           </div>
 
-          {/* СТАТУС НА НАЛИЧНОСТТА */}
           <div className="flex items-center sm:flex-col sm:items-end justify-between gap-1 shrink-0">
             {isFullyBooked ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
@@ -87,7 +85,6 @@ export function ResourceCard({
         )}
       </div>
 
-      {/* РЕШЕТКА СЪС СЛОТОВЕ */}
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -101,6 +98,7 @@ export function ResourceCard({
         <SlotGrid
           resource={resource}
           slots={slots}
+          selectedDate={selectedDate}
           onSelectSlot={onSelectSlot}
           onViewBooking={onViewBooking}
         />

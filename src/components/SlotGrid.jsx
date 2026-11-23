@@ -1,12 +1,16 @@
 import React from 'react';
-import { Plus, Check, Clock, User, Coffee, Users } from 'lucide-react';
+import { Plus, Coffee, Users } from 'lucide-react';
+import { getFormattedDate, isSlotInPast } from '../utils/timeUtils';
 
 export function SlotGrid({
   resource,
   slots,
+  selectedDate,
   onSelectSlot,
   onViewBooking
 }) {
+  const effectiveDate = selectedDate || getFormattedDate(0);
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-2">
       {slots.map((slot, index) => {
@@ -29,6 +33,33 @@ export function SlotGrid({
           );
         }
 
+        const isPast = isSlotInPast(effectiveDate, startTime);
+
+        if (isPast) {
+          const hasBooking = bookedCount > 0 && overlappingReservations[0];
+          return (
+            <button
+              key={index}
+              type="button"
+              disabled={!hasBooking}
+              onClick={() => hasBooking && onViewBooking?.(overlappingReservations[0])}
+              className={`flex flex-col items-center justify-center p-2 rounded-xl border text-slate-400 select-none transition-all ${
+                hasBooking
+                  ? 'bg-slate-100/90 border-slate-200 hover:bg-slate-200/70 cursor-pointer'
+                  : 'bg-slate-50 border-slate-200/70 opacity-60 cursor-not-allowed'
+              }`}
+              title={hasBooking ? 'Отминал час (кликнете за преглед на резервацията)' : 'Отминал час — не може да се запазва'}
+            >
+              <div className="text-xs font-mono font-semibold text-slate-500">
+                {startTime}
+              </div>
+              <span className="text-2xs font-medium mt-0.5">
+                {hasBooking ? 'Отминал (зает)' : 'Отминал'}
+              </span>
+            </button>
+          );
+        }
+
         // 2. НАПЪЛНО ЗАЕТ СЛОТ
         if (status === 'full') {
           const firstClient = overlappingReservations[0]?.clientName || 'Зает';
@@ -37,7 +68,7 @@ export function SlotGrid({
               key={index}
               onClick={() => overlappingReservations[0] && onViewBooking?.(overlappingReservations[0])}
               className="group relative flex flex-col items-center justify-center p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:bg-slate-200/80 cursor-pointer transition-all"
-              title={`Зает час. Кликнете за детайли.`}
+              title="Зает час. Кликнете за детайли."
             >
               <div className="text-xs font-mono font-semibold text-slate-700">
                 {startTime}
